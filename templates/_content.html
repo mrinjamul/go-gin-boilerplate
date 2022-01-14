@@ -1,0 +1,26 @@
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 flex justify-content-center text-center">
+        <h1 class="text-success">Qoutes</h1>
+        <hr />
+        <div id="quote"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    fetch("/quotes")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        for (let i = 0; i < data.articles.length; i++) {
+          document.getElementById("quote").innerHTML += `
+          <div>
+            <h2 class="text-info">${data.articles[i].text}</h2>
+            <h6 class="text-primary"> -${data.articles[i].author} </h6>
+          </div>
+            `;
+        }
+      });
+  </script>
+</body>
