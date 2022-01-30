@@ -20,6 +20,12 @@ And start development,
     go run main.go
 ```
 
+Initialize database,
+
+```bash
+http POST http://localhost:8080/qoutes data:=@data.json
+```
+
 ## Technology Stack
 
 Technologies used:
