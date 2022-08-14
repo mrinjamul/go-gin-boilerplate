@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"go-gin-boilerplate/models"
 	"go-gin-boilerplate/repository"
-	"io/ioutil"
 	"log"
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -23,17 +23,31 @@ type quote struct {
 	quoteRepo repository.QuoteRepo
 }
 
-// Add a new quote
+// Add godoc
+// @Summary Add a quote
+// @Description Add a quote
+// @ID add-quote
+// @Tags quote
+// @Accept  json
+// @Produce  json
+// @Param quote body models.Quote true "Quote"
+// @Success 200 {object} models.Quote
+// @Failure 400 {object} models.Error
+// @Failure 404 {object} models.Error
+// @Failure 500 {object} models.Error
+// @Router /quote [post]
 func (q *quote) Add(ctx *gin.Context) {
-	bytes, err := ioutil.ReadAll(ctx.Request.Body)
-
-	if err != nil {
-		log.Fatal(err)
-	}
 	var quote models.Quote
-	err = json.Unmarshal(bytes, &quote)
+	err := json.NewDecoder(ctx.Request.Body).Decode(&quote)
 	if err != nil {
-		log.Fatal(err)
+		ctx.JSON(http.StatusBadRequest, models.Error{
+			Error: models.ServiceError{
+				Kind:    "BadRequest",
+				Code:    "BadRequest",
+				Message: "Invalid JSON",
+			},
+		})
+		return
 	}
 	q.quoteRepo.Add(ctx, &quote)
 
@@ -43,7 +57,19 @@ func (q *quote) Add(ctx *gin.Context) {
 	})
 }
 
-// Get a quote by id
+// Get godoc
+// @Summary Get a quote
+// @Description Get a quote
+// @ID get-quote
+// @Tags quote
+// @Accept  json
+// @Produce  json
+// @Param id path int true "Quote ID"
+// @Success 200 {object} models.Quote
+// @Failure 400 {object} models.Error
+// @Failure 404 {object} models.Error
+// @Failure 500 {object} models.Error
+// @Router /quote/{id} [get]
 func (q *quote) Get(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 
@@ -51,7 +77,9 @@ func (q *quote) Get(ctx *gin.Context) {
 		log.Fatal(err)
 	}
 	quote := models.Quote{
-		ID: uint(id),
+		Base: models.Base{
+			ID: uint(id),
+		},
 	}
 
 	quote, err = q.quoteRepo.Get(ctx, quote)
@@ -70,7 +98,18 @@ func (q *quote) Get(ctx *gin.Context) {
 	}
 }
 
-// GetAll all quotes
+// GetAll godoc
+// @Summary Get all quotes
+// @Description Get all quotes
+// @ID get-all-quotes
+// @Tags quote
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} []models.Quote
+// @Failure 400 {object} models.Error
+// @Failure 404 {object} models.Error
+// @Failure 500 {object} models.Error
+// @Router /quote [get]
 func (q *quote) GetAll(ctx *gin.Context) {
 	quotes, _ := q.quoteRepo.GetAll(ctx)
 
@@ -80,24 +119,39 @@ func (q *quote) GetAll(ctx *gin.Context) {
 	})
 }
 
-// Update a quote
+// Update godoc
+// @Summary Update a quote
+// @Description Update a quote
+// @ID update-quote
+// @Tags quote
+// @Accept  json
+// @Produce  json
+// @Param id path int true "Quote ID"
+// @Param quote body models.Quote true "Quote"
+// @Success 200 {object} models.Quote
+// @Failure 400 {object} models.Error
+// @Failure 404 {object} models.Error
+// @Failure 500 {object} models.Error
+// @Router /quote/{id} [put]
 func (q *quote) Update(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	bytes, err := ioutil.ReadAll(ctx.Request.Body)
-
-	if err != nil {
-		log.Fatal(err)
-	}
 	var quote models.Quote
-	err = json.Unmarshal(bytes, &quote)
+	err = json.NewDecoder(ctx.Request.Body).Decode(&quote)
 	if err != nil {
-		log.Fatal(err)
+		ctx.JSON(http.StatusBadRequest, models.Error{
+			Error: models.ServiceError{
+				Kind:    "BadRequest",
+				Code:    "BadRequest",
+				Message: "Invalid JSON",
+			},
+		})
+		return
 	}
+
 	quote.ID = uint(id)
 	q.quoteRepo.Update(ctx, &quote)
 
@@ -107,7 +161,18 @@ func (q *quote) Update(ctx *gin.Context) {
 	})
 }
 
-// Delete a quote
+// Delete godoc
+// @Summary Delete a quote
+// @Description Delete a quote
+// @ID delete-quote
+// @Tags quote
+// @Accept  json
+// @Produce  json
+// @Param id path int true "Quote ID"
+// @Success 200 {object} models.Quote
+// @Failure 400 {object} models.Error
+// @Failure 404 {object} models.Error
+// @Failure 500 {object} models.Error
 func (q *quote) Delete(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 
@@ -115,7 +180,9 @@ func (q *quote) Delete(ctx *gin.Context) {
 		log.Fatal(err)
 	}
 	quote := models.Quote{
-		ID: uint(id),
+		Base: models.Base{
+			ID: uint(id),
+		},
 	}
 
 	q.quoteRepo.Delete(ctx, &quote)

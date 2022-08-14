@@ -1,0 +1,244 @@
+basePath: /
+definitions:
+  controllers.Check:
+    properties:
+      alloc_bytes:
+        description: TotalAllocBytes is the bytes allocated and not yet freed.
+        type: integer
+      failures:
+        additionalProperties:
+          type: string
+        description: Failures holds the failed checks along with their messages.
+        type: object
+      goroutines_count:
+        description: GoroutinesCount is the number of the current goroutines.
+        type: integer
+      heap_objects_count:
+        description: HeapObjectsCount is the number of objects in the go heap.
+        type: integer
+      startup:
+        description: StartUp is the time to boot up the system.
+        type: string
+      status:
+        description: Status is the check status.
+        type: string
+      timestamp:
+        description: Timestamp is the time in which the check occurred.
+        type: string
+      total_alloc_bytes:
+        description: TotalAllocBytes is the total bytes allocated.
+        type: integer
+      uptime:
+        description: Uptime is the time in which the check occurred.
+        type: string
+      version:
+        description: Version is the go version.
+        type: string
+    type: object
+  models.Error:
+    properties:
+      error:
+        $ref: '#/definitions/models.ServiceError'
+    type: object
+  models.Quote:
+    properties:
+      author:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        $ref: '#/definitions/sql.NullTime'
+      id:
+        type: integer
+      text:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.ServiceError:
+    properties:
+      code:
+        type: string
+      kind:
+        type: string
+      message:
+        type: string
+      param:
+        type: string
+    type: object
+  sql.NullTime:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+info:
+  contact:
+    email: mrinjamul@gmail.com
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a gin API for go
+  license:
+    name: MIT License
+    url: https://github.com/mrinjamul/go-gin-boilerplate/blob/main/LICENSE
+  termsOfService: http://swagger.io/terms/
+  title: go gin API
+  version: "1.0"
+paths:
+  /api/health:
+    get:
+      description: checks the health of the system.
+      operationId: healthcheck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.Check'
+      summary: Show the status of the system.
+      tags:
+      - health
+  /quote:
+    get:
+      consumes:
+      - application/json
+      description: Get all quotes
+      operationId: get-all-quotes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Quote'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Get all quotes
+      tags:
+      - quote
+    post:
+      consumes:
+      - application/json
+      description: Add a quote
+      operationId: add-quote
+      parameters:
+      - description: Quote
+        in: body
+        name: quote
+        required: true
+        schema:
+          $ref: '#/definitions/models.Quote'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Quote'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Add a quote
+      tags:
+      - quote
+  /quote/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a quote
+      operationId: get-quote
+      parameters:
+      - description: Quote ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Quote'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Get a quote
+      tags:
+      - quote
+    put:
+      consumes:
+      - application/json
+      description: Update a quote
+      operationId: update-quote
+      parameters:
+      - description: Quote ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Quote
+        in: body
+        name: quote
+        required: true
+        schema:
+          $ref: '#/definitions/models.Quote'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Quote'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Update a quote
+      tags:
+      - quote
+schemes:
+- http
+- https
+swagger: "2.0"

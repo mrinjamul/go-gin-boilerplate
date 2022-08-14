@@ -1,13 +1,14 @@
 package models
 
-type Quote struct {
-	ID        uint   `json:"id" gorm:"primary_key"`
-	Text      string `json:"text"`
-	Author    string `json:"author"`
-	CreatedAt string `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt string `json:"updated_at" gorm:"autoUpdateTime"`
-}
+import (
+	"database/sql"
+	"time"
+)
 
-func init() {
-
+// Base model struct
+type Base struct {
+	ID        uint         `json:"id,omitempty" gorm:"primary_key,autoIncrement,not null"`
+	CreatedAt time.Time    `json:"created_at" gorm:"not null"`
+	UpdatedAt time.Time    `json:"updated_at" gorm:"not null"`
+	DeletedAt sql.NullTime `json:"deleted_at" gorm:"index,not null"`
 }

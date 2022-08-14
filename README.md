@@ -20,10 +20,16 @@ And start development,
     go run main.go
 ```
 
+Generate OpenAPI spec:
+
+```bash
+swag init --parseDependency --parseInternal
+```
+
 Initialize database,
 
 ```bash
-http POST http://localhost:8080/qoutes data:=@data.json
+http POST http://localhost:3000/api/v1/quote data:=@data.json
 ```
 
 ## Technology Stack
@@ -34,6 +40,13 @@ Technologies used:
 - [Gin](https://github.com/gin-gonic/gin)
 - [Gorm](https://gorm.io/)
 - [Sqlite](https://www.sqlite.org/): [go-sqlite3](https://github.com/mattn/go-sqlite3)
+- [Swagger](https://swagger.io/): [Go Swagger](https://github.com/swaggo/gin-swagger)
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) to learn how to contribute to this project.
+
+Also see [CODE OF CONDUCT](CODE_OF_CONDUCT.md).
 
 ## License
 

@@ -2,51 +2,67 @@ package routes
 
 import (
 	"go-gin-boilerplate/api/services"
-	"net/http"
+	"time"
 
+	docs "go-gin-boilerplate/docs"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func InitRoutes(routes *gin.Engine) {
+var (
+	// StartTime is the time when the server started
+	StartTime time.Time
+	// BootTime is the time when the server booted
+	BootTime time.Duration
+)
+
+func InitRoutes(router *gin.Engine) {
+	// Initialize services
 	svc := services.NewServices()
-	// Serve the frontend
-	routes.LoadHTMLGlob("templates/*")
-	routes.GET("/", func(c *gin.Context) {
-		// Call the HTML method of the Context to render a template
-		c.HTML(
-			// Set the HTTP status to 200 (OK)
-			http.StatusOK,
-			// Use the index.html template
-			"index.html",
-			// Pass the data that the page uses (in this case, 'title')
-			gin.H{
-				"title": "Home Page",
-			},
-		)
+	// Add CORS middleware
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	router.Use(cors.New(config))
+
+	// Initialize the routes
+
+	// Home Page
+	router.GET("/", func(c *gin.Context) {
+		svc.View().Index(c)
 	})
+
+	// 404 Page
+	router.NoRoute(func(ctx *gin.Context) {
+		svc.View().NotFound(ctx)
+	})
+
+	// Backend API
+	docs.SwaggerInfo.BasePath = "/"
 	// health check
-	routes.GET("/api/health", func(c *gin.Context) {
-		c.JSON(
-			http.StatusOK,
-			gin.H{
-				"health": "ok",
-			},
-		)
+	router.GET("/api/health", func(c *gin.Context) {
+		svc.HealthCheckService().HealthCheck(c, StartTime, BootTime)
 	})
-	// quote routes
-	routes.GET("/quotes", func(c *gin.Context) {
-		svc.QuoteService().GetAll(c)
-	})
-	routes.GET("/quotes/:id", func(c *gin.Context) {
-		svc.QuoteService().Get(c)
-	})
-	routes.POST("/quotes", func(c *gin.Context) {
-		svc.QuoteService().Add(c)
-	})
-	routes.PUT("/quotes/:id", func(c *gin.Context) {
-		svc.QuoteService().Update(c)
-	})
-	routes.DELETE("/quotes/:id", func(c *gin.Context) {
-		svc.QuoteService().Delete(c)
-	})
+	v1 := router.Group("/api/v1")
+	{
+		// quote routes
+		v1.GET("/quote", func(c *gin.Context) {
+			svc.QuoteService().GetAll(c)
+		})
+		v1.GET("/quote/:id", func(c *gin.Context) {
+			svc.QuoteService().Get(c)
+		})
+		v1.POST("/quote", func(c *gin.Context) {
+			svc.QuoteService().Add(c)
+		})
+		v1.PUT("/quote/:id", func(c *gin.Context) {
+			svc.QuoteService().Update(c)
+		})
+		v1.DELETE("/quote/:id", func(c *gin.Context) {
+			svc.QuoteService().Delete(c)
+		})
+	}
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 }
